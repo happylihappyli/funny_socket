@@ -9,7 +9,6 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import java.awt.BorderLayout;
 import java.awt.Button;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.TextArea;
 import java.awt.TextField;
@@ -106,6 +105,7 @@ public class JavaMain {
         socket.on(Socket.EVENT_DISCONNECT, (Object... args1) -> {
             socket.connect();
         });
+        
         socket.connect();
         while(true){
             try {

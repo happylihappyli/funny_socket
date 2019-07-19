@@ -1,0 +1,120 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+
+ <groupId>com.corundumstudio.socketio</groupId>
+ <artifactId>funny_socket_io_server</artifactId>
+ <version>1.0.0-SNAPSHOT</version>
+ <packaging>jar</packaging>
+ <inceptionYear>2012</inceptionYear>
+
+ <properties>
+     <main.class>com.corundumstudio.socketio.demo.ChatLauncher</main.class>
+     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+ </properties>
+
+ <licenses>
+     <license>
+         <name>Apache v2</name>
+         <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+         <distribution>manual</distribution>
+     </license>
+ </licenses>
+
+ <developers>
+     <developer>
+         <id>mrniko</id>
+         <name>Nikita Koksharov</name>
+         <roles>
+             <role>Architect</role>
+             <role>Developer</role>
+         </roles>
+         <timezone>+4</timezone>
+     </developer>
+ </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.corundumstudio.socketio</groupId>
+            <artifactId>netty-socketio</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.funnyai</groupId>
+            <artifactId>mv_common_newjava</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funnyai</groupId>
+            <artifactId>mv_common2</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        
+                        <configuration>
+                            <!--${project.build.directory} class的输出目录不做设置的话默认代表项目根目录的target目录；
+                                也可以使用“自定义文件夹/自定义文件夹 例如：a/b”，也可以使用绝对路径如：“D:\test” -->
+                            <outputDirectory>E:\happyli\Jar\server_socket</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                    <finalName>funny_socket_io_server</finalName>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                          <mainClass>funnyai.JavaMain</mainClass>
+                        </transformer>
+                    </transformers>
+
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+
+    </build>
+
+</project>
