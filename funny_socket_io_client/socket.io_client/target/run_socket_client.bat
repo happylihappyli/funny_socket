@@ -1,0 +1,1 @@
+java -jar E:\Data\Java\funny_socket_io_client\socket.io_client\target\funny_socket_io_client.jar
