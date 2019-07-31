@@ -8,6 +8,7 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.listener.ConnectListener;
 import com.funnyai.common.AI_Var2;
 import com.funnyai.common.S_Debug;
 import com.funnyai.common.S_Save;
@@ -40,6 +41,8 @@ public class JavaMain {
 
             final SocketIOServer server = new SocketIOServer(config);
 
+            addConnectListener(server);
+            
             server.addEventListener("chat_event", ChatObject.class,
                     (SocketIOClient client,
                     ChatObject data, AckRequest ackRequest) -> {
@@ -52,7 +55,7 @@ public class JavaMain {
                 }catch(Exception ex){
                     
                 }
-                Send_Msg(server,data,"chat_event");
+                Send_Msg(server,client.getSessionId().toString(), data,"chat_event");
             });
             
             server.addEventListener("sys_event", ChatObject.class, (SocketIOClient client, ChatObject data, AckRequest ackRequest) -> {
@@ -66,6 +69,7 @@ public class JavaMain {
                     
                 }
                 switch (data.getTo()){
+                    case "*_session":
                     case ":_session":
                         String UID=client.getSessionId().toString();
                         String Name=data.getFrom();
@@ -78,7 +82,7 @@ public class JavaMain {
                         }
                         break;
                     default:
-                        Send_Msg(server,data,"sys_event");
+                        Send_Msg(server,client.getSessionId().toString(),data,"sys_event");
                         break;
                 }
             });
@@ -101,8 +105,6 @@ public class JavaMain {
                     pData.setMessage(Session_ID);
                     pClient.sendEvent("sys_event", pData);
                 }
-                
-                //server.getBroadcastOperations().sendEvent("chatevent", pData);
                 S_Debug.Write_DebugLog("chat","system 30s");
                 Thread.sleep(1000*30);
             }
@@ -110,21 +112,52 @@ public class JavaMain {
         }catch(FileNotFoundException | InterruptedException ex){
 
         }
-        
-        //server.stop();
+    }
+    
+    
+    public static void addConnectListener(SocketIOServer server) {
+        server.addConnectListener(new ConnectListener() {
+
+            public void onConnect(SocketIOClient client) {
+                //logger.info(client.getRemoteAddress() + " web客户端接入");
+                out.println(client.getRemoteAddress() + " web客户端接入");
+                
+                ChatObject pData=new ChatObject();
+                pData.setFrom("system");
+                pData.setTo("30s:session");
+                String Session_ID = client.getSessionId().toString();
+                pData.setMessage(Session_ID);
+                client.sendEvent("sys_event", pData);
+            }
+        });
     }
 
     public static void Send_Msg(
             SocketIOServer server,
+            String sender_session_id,
             ChatObject data,
             String strEvent){
         
         
         String strTo=data.getTo();
         if (strTo.equals("*")){
-            server.getBroadcastOperations().sendEvent(strEvent, data);
+            out.println("send to *");
+            //server.getBroadcastOperations().sendEvent(strEvent, data);
+            
+            out.println("not found,send to all except me");
+
+            Collection<SocketIOClient> pCollect=server.getAllClients();
+            Object[] clients = pCollect.toArray();
+            for(int i = 0; i < clients.length; i++){
+                SocketIOClient pClient=(SocketIOClient) clients[i];
+                String Session_ID = pClient.getSessionId().toString();
+                if (!Session_ID.equals(sender_session_id)){
+                    pClient.sendEvent(strEvent, data);
+                }
+            }
         }else{
             if (pTreap.containsKey(strTo)){
+                out.println("found,send to "+strTo);
                 C_User pUser=(C_User) pTreap.get(strTo);
                 Collection<SocketIOClient> pCollect=server.getAllClients();
 
@@ -137,7 +170,18 @@ public class JavaMain {
                     }
                 }
             }else{
-                server.getBroadcastOperations().sendEvent(strEvent, data);
+                out.println("not found,send to all except me");
+                
+                Collection<SocketIOClient> pCollect=server.getAllClients();
+                Object[] clients = pCollect.toArray();
+                for(int i = 0; i < clients.length; i++){
+                    SocketIOClient pClient=(SocketIOClient) clients[i];
+                    String Session_ID = pClient.getSessionId().toString();
+                    if (!Session_ID.equals(sender_session_id)){
+                        pClient.sendEvent(strEvent, data);
+                    }
+                }
+                //server.getBroadcastOperations().sendEvent(strEvent, data);
             }
         }
     }
