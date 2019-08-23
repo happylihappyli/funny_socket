@@ -13,9 +13,12 @@ import com.funnyai.common.AI_Var2;
 import com.funnyai.common.S_Debug;
 import com.funnyai.common.S_Save;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import static java.lang.System.out;
 import java.util.Collection;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JavaMain {
 
@@ -38,6 +41,7 @@ public class JavaMain {
             Configuration config = new Configuration();
             config.setHostname(strIP);//"localhost");
             config.setPort(iPort);
+            config.setExceptionListener(new MyExceptionListener());
 
             final SocketIOServer server = new SocketIOServer(config);
 
@@ -74,8 +78,8 @@ public class JavaMain {
                         String UID=client.getSessionId().toString();
                         String Name=data.getFrom();
                         if (UID.equals(data.getMessage())){
-                            pTreap.containsKey(Name);
-                            if (pTreap.get(Name)!=null){
+                            
+                            if (pTreap.containsKey(Name)){
                                 pTreap.remove(Name);
                             }
                             pTreap.put(Name, new C_User(data.getFrom(),UID));
@@ -119,15 +123,15 @@ public class JavaMain {
         server.addConnectListener(new ConnectListener() {
 
             public void onConnect(SocketIOClient client) {
-                //logger.info(client.getRemoteAddress() + " web客户端接入");
-                out.println(client.getRemoteAddress() + " web客户端接入");
-                
-                ChatObject pData=new ChatObject();
-                pData.setFrom("system");
-                pData.setTo("30s:session");
-                String Session_ID = client.getSessionId().toString();
-                pData.setMessage(Session_ID);
-                client.sendEvent("sys_event", pData);
+                    //String str = new String(" web客户端接入".getBytes(), "utf-8");
+                    out.println(client.getRemoteAddress() + " web客户端接入");
+                    
+                    ChatObject pData=new ChatObject();
+                    pData.setFrom("system");
+                    pData.setTo("30s:session");
+                    String Session_ID = client.getSessionId().toString();
+                    pData.setMessage(Session_ID);
+                    client.sendEvent("sys_event", pData);
             }
         });
     }
